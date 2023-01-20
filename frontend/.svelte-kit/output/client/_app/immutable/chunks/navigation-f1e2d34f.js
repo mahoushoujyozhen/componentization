@@ -1,0 +1,1 @@
+import{c as a}from"./singletons-ea28172e.js";a.disable_scroll_handling;const t=a.goto;a.invalidate;const i=a.invalidateAll;a.prefetch;a.prefetch_routes;a.before_navigate;a.after_navigate;export{t as g,i};

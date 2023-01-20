@@ -1,0 +1,26 @@
+{
+	"": [
+		"src/routes/+page.ts"
+	],
+	"about": [
+		"src/routes/about/+page.ts"
+	],
+	"chat": [
+		"src/routes/chat/+page.ts"
+	],
+	"filemanage": [
+		"src/routes/filemanage/+page.ts"
+	],
+	"login": [
+		"src/routes/login/+page.ts"
+	],
+	"msgmanage": [
+		"src/routes/msgmanage/+page.ts"
+	],
+	"sverdle": [
+		"src/routes/sverdle/+page.server.ts"
+	],
+	"sverdle/how-to-play": [
+		"src/routes/sverdle/how-to-play/+page.ts"
+	]
+}

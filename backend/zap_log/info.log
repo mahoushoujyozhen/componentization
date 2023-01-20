@@ -1,0 +1,12 @@
+2022-12-09T14:25:26.862+0800	INFO	backend/main.go:19	hello main
+2022-12-09T14:25:26.898+0800	INFO	db/pool.go:49	DB pool create success
+2022-12-09T14:26:12.526+0800	INFO	service/web-serve.go:23	service get a request
+2022-12-09T14:28:54.421+0800	INFO	service/web-serve.go:23	service get a request
+2022-12-09T14:28:54.535+0800	ERROR	article/article.go:411	err: no rows in result set
+2022-12-09T14:28:55.513+0800	INFO	service/web-serve.go:23	service get a request
+2022-12-09T14:28:55.526+0800	ERROR	article/article.go:411	err: no rows in result set
+2022-12-09T14:28:59.520+0800	INFO	service/web-serve.go:23	service get a request
+2022-12-09T14:28:59.651+0800	ERROR	article/article.go:411	err: no rows in result set
+2022-12-09T14:38:16.618+0800	INFO	service/web-serve.go:23	service get a request
+2022-12-09T14:38:35.932+0800	ERROR	article/article.go:411	err: read tcp 192.168.3.178:59041->175.178.106.176:5432: wsarecv: An existing connection was forcibly closed by the remote host.
+2022-12-09T15:20:05.825+0800	INFO	service/web-serve.go:23	service get a request

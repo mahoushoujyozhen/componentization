@@ -1,0 +1,9 @@
+{
+  "db_postgres":{
+    "address": "175.178.106.176",
+    "port": "5432",
+    "user": "postgres",
+    "pw": "huangzhen123",
+    "db_name":"newdb"
+  }
+}
