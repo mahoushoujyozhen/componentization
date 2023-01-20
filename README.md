@@ -19,9 +19,15 @@
 
 >Golang was used to implement the stress test function, test cases were designed for coherent interface calls, goroutine was opened to simulate multiple user access, the default api response time was more than 3s, indicating that the server had reached the upper limit, and the pressure test results were able to support about 2000 concurrency.
 
-## 
+
 
 ## Deployment
 
 >Use Docker for containerized deployment, write a DockerFile for the project, configure the running environment of the project container, and start the project. Use Jenkins+Gitlab for continuous integration. Configure Jenkins and Gitlab with network hook functions to implement that Jenkins will automatically pull the project and rebuild when local push.
+
+
+
+## Database
+
+>Use PostgreSQL 
 
