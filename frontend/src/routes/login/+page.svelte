@@ -13,20 +13,37 @@
         id:0
     })
     onMount(()=>{
-        // window.localStorage.clear()
+        fetch("http://localhost:7070/api/login/welcome",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                alert("用户尚未登录，请先登录")
+                return
+            }
+            alert("token check success")
+        })
     })
 
     function login(){
-        // window.localStorage.clear()
-         let url ="http://175.178.106.176:7070/api/login";
-        // let url ="http://localhost:7070/api/login";
+
+        //  let url ="http://175.178.106.176:7070/api/login";
+        let url ="http://localhost:7070/api/login";
+        // let url ="http://localhost:7070/api/jwt";
         fetch(url,{
             method:"POST",
-            mode:"cors",
+            //mode:"cors",
             cache:"no-cache",
-            credentials:"same-origin",
+            credentials:"include",
             headers: {
                "Content-Type": "application/json",
+               
             },
             redirect:"follow",
             body: JSON.stringify({
@@ -38,19 +55,21 @@
             return v.json();
         })
         .then((v)=>{
+            
             if(v.status != 0){
                 console.log(v.msg);
                 return
             }
             console.log("success");
             console.log(v.msg)
-            // alert(v.msg)
             message = v.msg
             snackbarWithoutClose.open()
             console.log(v.data.id)
             $form.id = v.data.id
             window.localStorage.setItem("id",v.data.id)   
-            window.localStorage.setItem("username",v.data.username)  
+            window.localStorage.setItem("username",v.data.username)
+              
+            
         })
     }
 </script>

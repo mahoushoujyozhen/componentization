@@ -25,6 +25,23 @@ let selectionIndex: number | undefined = undefined;
 let selection = 'Stephen Hawking';
 let locationHost = "175.178.106.176:7070/api/chat" 
 onMount(()=>{
+    fetch("http://localhost:7070/api/login/welcome",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                alert("用户尚未登录，请先登录")
+                return
+            }
+            alert("token check success")
+        })
+
     if (window.localStorage.getItem("id") == null){
         alert("请先登录再进行聊天")
         return

@@ -39,8 +39,7 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const FPS_BROWSER_APP_PROFILE_STRING: string;
-	export const FPS_BROWSER_USER_PROFILE_STRING: string;
+	export const EFC_23516: string;
 	export const FTP_PASSIVE: string;
 	export const GIT_ASKPASS: string;
 	export const GoLand: string;
@@ -54,6 +53,7 @@ declare module '$env/static/private' {
 	export const LANG: string;
 	export const LOCALAPPDATA: string;
 	export const LOGONSERVER: string;
+	export const LSERVRC: string;
 	export const NODE: string;
 	export const NODE_EXE: string;
 	export const NODE_PATH: string;
@@ -98,8 +98,10 @@ declare module '$env/static/private' {
 	export const ProgramW6432: string;
 	export const PROMPT: string;
 	export const PSModulePath: string;
+	export const PT8HOME: string;
 	export const PUBLIC: string;
 	export const PyCharm: string;
+	export const QT_DEVICE_PIXEL_RATIO: string;
 	export const RATL_RTHOME: string;
 	export const SESSIONNAME: string;
 	export const SystemDrive: string;
@@ -113,10 +115,12 @@ declare module '$env/static/private' {
 	export const USERDOMAIN_ROAMINGPROFILE: string;
 	export const USERNAME: string;
 	export const USERPROFILE: string;
+	export const VISUALSVN_SERVER: string;
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 	export const VSCODE_GIT_ASKPASS_MAIN: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
+	export const VSCODE_INJECTION: string;
 	export const WebStorm: string;
 	export const windir: string;
 }
@@ -161,8 +165,7 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
-		FPS_BROWSER_APP_PROFILE_STRING: string;
-		FPS_BROWSER_USER_PROFILE_STRING: string;
+		EFC_23516: string;
 		FTP_PASSIVE: string;
 		GIT_ASKPASS: string;
 		GoLand: string;
@@ -176,6 +179,7 @@ declare module '$env/dynamic/private' {
 		LANG: string;
 		LOCALAPPDATA: string;
 		LOGONSERVER: string;
+		LSERVRC: string;
 		NODE: string;
 		NODE_EXE: string;
 		NODE_PATH: string;
@@ -220,8 +224,10 @@ declare module '$env/dynamic/private' {
 		ProgramW6432: string;
 		PROMPT: string;
 		PSModulePath: string;
+		PT8HOME: string;
 		PUBLIC: string;
 		PyCharm: string;
+		QT_DEVICE_PIXEL_RATIO: string;
 		RATL_RTHOME: string;
 		SESSIONNAME: string;
 		SystemDrive: string;
@@ -235,10 +241,12 @@ declare module '$env/dynamic/private' {
 		USERDOMAIN_ROAMINGPROFILE: string;
 		USERNAME: string;
 		USERPROFILE: string;
+		VISUALSVN_SERVER: string;
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 		VSCODE_GIT_ASKPASS_MAIN: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		VSCODE_GIT_IPC_HANDLE: string;
+		VSCODE_INJECTION: string;
 		WebStorm: string;
 		windir: string;
 		[key: string]: string | undefined;

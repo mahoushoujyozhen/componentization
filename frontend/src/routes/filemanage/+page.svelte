@@ -2,6 +2,44 @@
     import {onMount} from "svelte"
     import Button from '@smui/button'
     import Textfield from '@smui/textfield';
+    onMount(()=>{
+        fetch("http://localhost:7070/api/login/welcome",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                alert("用户尚未登录，请先登录")
+                return
+            }
+            alert("token check success")
+        })
+    })
+
+    let test = function(){
+        fetch("http://localhost:7070/api/login/refresh",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+            
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                return
+            }
+            
+            alert("token refresh success")
+        })
+    }
     let url = ""
     let file:FileList | null = null
     let filepath:string
@@ -99,6 +137,7 @@
         <Button on:click={deletefile} variant='raised'>delete</Button>
         <div>FilePath:{filepath}</div>
         <img src={filepath} alt="xxx">
+        <Button on:click={test}>Refresh</Button>
     </div>  
   
 </div>

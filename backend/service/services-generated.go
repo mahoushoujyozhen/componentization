@@ -7,6 +7,7 @@ import (
 	"backend/serve/article" //article ,  article, , 389403710@qq.com
 	"backend/serve/chat" //chat ,  chat, , 389403710@qq.com
 	"backend/serve/filemanage" //filemanage ,  filemanage, , 389403710@qq.com
+	"backend/serve/jwt" //jwt ,  jwt-Login, , 389403710@qq.com
 	"backend/serve/login" //login ,  login, , 389403710@qq.com
 	"backend/serve/msgmanage" //msgmanage ,  msgmanage, , 389403710@qq.com
 	"backend/serve/test" //test ,  test, , XUnion@GMail.com
@@ -19,6 +20,7 @@ func Enroll(){
   article.Enroll(`{"name":"article","email":"389403710@qq.com"}`)
   chat.Enroll(`{"name":"chat","email":"389403710@qq.com"}`)
   filemanage.Enroll(`{"name":"filemanage","email":"389403710@qq.com"}`)
+  jwt.Enroll(`{"name":"jwt-Login","email":"389403710@qq.com"}`)
   login.Enroll(`{"name":"login","email":"389403710@qq.com"}`)
   msgmanage.Enroll(`{"name":"msgmanage","email":"389403710@qq.com"}`)
   test.Enroll(`{"name":"test","email":"XUnion@GMail.com"}`)

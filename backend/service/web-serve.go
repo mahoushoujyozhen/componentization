@@ -13,9 +13,11 @@ func WebServe(w http.ResponseWriter, r *http.Request) {
 	log := zap_log.Log
 	fmt.Println("Component enroll success!")
 	//解决跨域
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//注意，设置同源处理的时候，localhost和127.0.0.1要和前端保持一致，前端为127.0.0.1，所以这里使用127.0.0.1
+	w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:5173")
 	w.Header().Set("Access-Control-Allow-Method", "GET,POST,PUT,DELETE,OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return

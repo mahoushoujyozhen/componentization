@@ -13,17 +13,23 @@
         age:18,
         phone:"18401111111",
     })
-
-
         onMount(()=>{
-            $user.id = Number(window.localStorage.getItem("id"))
-            var username = window.localStorage.getItem("username")
-            if (username != null){
-            $user.username = username
-            }else {
-                alert("用户未登录,请先登录")
+            fetch("http://localhost:7070/api/login/welcome",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                alert("用户尚未登录，请先登录")
                 return
             }
+            alert("token check success")
+        })
         })
     function update(){
         let url ="http://175.178.106.176:7070/api/msgmanage";
