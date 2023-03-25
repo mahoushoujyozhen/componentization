@@ -302,7 +302,6 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 		})
 
-		log.Info(fmt.Sprintf("token:%s send to %s", tokenStr, username))
 	}
 	cmn.Resp(w, &req)
 	return
@@ -344,7 +343,6 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == http.ErrNoCookie {
 			//如果未设置Cookies，则说明用户没有进行认证
-			fmt.Println("&&&&&&&&&&&&&&&&&&&&&&&&")
 			req.Status = 401
 			req.Msg = "No Cookie"
 			log.Error(req.Msg)
@@ -360,7 +358,6 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	}
 	//Get token value
 	tokenStr := c.Value
-	fmt.Println(tokenStr, "***********************")
 	//初始化claims实例
 	claims := &Claims{}
 
@@ -419,16 +416,13 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		//对于其他类型的错误，返回错误请求状态
-		fmt.Println("*******************")
 		req.Status = 400
 		req.Msg = "cookie err"
 		log.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
-	fmt.Println("&&&&&&&&&&&&&&&&&&&&&&&&")
 	tokenStr := c.Value
-	fmt.Println(tokenStr, "*************")
 	//初始化claims实例
 	claims := &Claims{}
 
