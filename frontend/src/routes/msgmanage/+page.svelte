@@ -13,6 +13,23 @@
         age:18,
         phone:"18401111111",
     })
+    const refreshToken = function(){
+    fetch("http://localhost:7070/api/login/refresh",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                return
+            }
+            console.log("token refresh success")
+        })
+} 
         onMount(()=>{
             fetch("http://localhost:7070/api/login/welcome",{
             method:"POST",
@@ -25,7 +42,8 @@
         .then((v)=>{
             if (v.status != 0 ){
                 console.log(v.msg)
-                alert("用户尚未登录，请先登录")
+                alert("用户尚未登录，请先登录(调用了refresh函数)")
+                refreshToken()
                 return
             }
             alert("token check success")

@@ -12,8 +12,43 @@
         pw:"123456",
         id:0
     })
+    const welcome = function(){
+    fetch("http://localhost:7070/api/welcome",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                return
+            }
+            console.log("token welcome")
+        })
+} 
+    const refreshToken = function(){
+    fetch("http://localhost:7070/api/refreshToken",{
+            method:"POST",
+            cache:"no-cache",
+            credentials:"include",
+        })
+        .then((v)=>{
+            return v.json()
+        })
+        .then((v)=>{
+            if (v.status != 0 ){
+                console.log(v.msg)
+                return
+            }
+            console.log("token refresh success")
+        })
+} 
     onMount(()=>{
-        fetch("http://localhost:7070/api/login/welcome",{
+        
+        fetch("http://localhost:7070/api/welcome",{
             method:"POST",
             cache:"no-cache",
             credentials:"include",
@@ -28,6 +63,7 @@
                 return
             }
             alert("token check success")
+            setInterval(refreshToken,1000*10)
         })
     })
 
@@ -35,10 +71,8 @@
 
         //  let url ="http://175.178.106.176:7070/api/login";
         let url ="http://localhost:7070/api/login";
-        // let url ="http://localhost:7070/api/jwt";
         fetch(url,{
             method:"POST",
-            //mode:"cors",
             cache:"no-cache",
             credentials:"include",
             headers: {
@@ -94,6 +128,8 @@
     </div>
     <div class="btnWrapper">
         <Button color='primary' on:click={login} variant='raised'>login</Button>
+        <Button color='primary' on:click={welcome} variant='raised'>welcome</Button>
+        <Button color='primary' on:click={refreshToken} variant='raised'>refresh</Button>
     </div>
     <Snackbar class="demo-success" bind:this={snackbarWithoutClose}>
         <Label>{message}</Label>

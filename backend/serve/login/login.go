@@ -44,7 +44,7 @@ func Enroll(author string) {
 	//check login or not
 	err = cmn.AddService(&cmn.ServeEndPoint{
 		Fn:   Welcome,
-		Path: "/api/login/welcome",
+		Path: "/api/welcome",
 		Name: "Welcome",
 	})
 	if err != nil {
@@ -55,7 +55,7 @@ func Enroll(author string) {
 	//refresh token when token was invalid
 	err = cmn.AddService(&cmn.ServeEndPoint{
 		Fn:   Refresh,
-		Path: "/api/login/refresh",
+		Path: "/api/refreshToken",
 		Name: "Refresh",
 	})
 	if err != nil {
@@ -72,7 +72,7 @@ var (
 
 func init() {
 
-	expirationTime = time.Now().Add(time.Minute * 5)
+	expirationTime = time.Now().Add(time.Minute * 10)
 	PrivateKey = []byte("mahoushoujyoKey")
 }
 func login(w http.ResponseWriter, r *http.Request) {
@@ -217,7 +217,6 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 	rs := dbConn.QueryRow(context.Background(), s, username, pw)
 	err = rs.Scan(&id)
 	if err != nil {
-
 		//不存在，注册
 		if errors.Is(err, pgx.ErrNoRows) {
 			s := `INSERT INTO usercst (username,password) VALUES ($1,$2); `
@@ -254,16 +253,17 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 				log.Error(err.Error())
 			}
 
-			if tokenStr != "" {
-				//设置token
-				http.SetCookie(w, &http.Cookie{
-					Name:     "token",
-					Value:    tokenStr,
-					Expires:  expirationTime,
-					SameSite: http.SameSiteNoneMode,
-					Secure:   true,
-				})
-			}
+			//设置token
+			http.SetCookie(w, &http.Cookie{
+				Name:     "token",
+				Value:    tokenStr,
+				Domain:   "localhost",
+				Path:     "/api",
+				Expires:  expirationTime,
+				SameSite: http.SameSiteNoneMode,
+				Secure:   true,
+			})
+
 			cmn.Resp(w, &req)
 			return
 		}
@@ -291,18 +291,18 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 		log.Error(err.Error())
 	}
 
-	if tokenStr != "" {
-		//设置token
-		http.SetCookie(w, &http.Cookie{
-			Name:    "token",
-			Value:   tokenStr,
-			Expires: expirationTime,
-			//SameSite= None 保证cookie可以在跨域过程中被传递和接受，并且要设置Secure=true值才会生效
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
-		})
+	//设置token
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   tokenStr,
+		Expires: expirationTime,
+		Domain:  "localhost",
+		Path:    "/api",
+		//SameSite= None 保证cookie可以在跨域过程中被传递和接受，并且要设置Secure=true值才会生效
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	})
 
-	}
 	cmn.Resp(w, &req)
 	return
 
@@ -339,7 +339,6 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	}
 	log := zap_log.Log
 	c, err := r.Cookie("token")
-
 	if err != nil {
 		if err == http.ErrNoCookie {
 			//如果未设置Cookies，则说明用户没有进行认证
@@ -407,7 +406,6 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("token")
 	if err != nil {
 		if err == http.ErrNoCookie {
-
 			//如果未设置Cookies，则说明用户没有进行认证
 			req.Status = 401
 			req.Msg = "No Cookie"
@@ -436,7 +434,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		//使用私钥去解密，查看签名是否有效，
 		if err == jwt.ErrSignatureInvalid {
 			req.Status = 401
-			req.Msg = "No Cookie"
+			req.Msg = "invalid signature"
 			log.Error(req.Msg)
 			cmn.Resp(w, &req)
 			return
@@ -450,7 +448,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	//查看令牌是否有效（是否在有效期内）
 	if !tkn.Valid {
 		req.Status = 401
-		req.Msg = "No Cookie"
+		req.Msg = "token is invalid"
 		log.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
@@ -460,13 +458,11 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	//否则返回错误的请求状态
 	if time.Unix(claims.ExpiresAt.Unix(), 0).Sub(time.Now()) > 30*time.Second {
 		req.Status = 401
-		req.Msg = "No Cookie"
-		log.Error(req.Msg)
+		req.Msg = "token 未过期"
 		cmn.Resp(w, &req)
 		return
 	}
 	//	现在为当前用户创建一个新的令牌，并延长其的到期时间
-	expirationTime := time.Now().Add(time.Minute * 5)
 	claims.ExpiresAt = &jwt.NumericDate{Time: expirationTime}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err = token.SignedString(PrivateKey)
@@ -477,10 +473,20 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		cmn.Resp(w, &req)
 		return
 	}
+	//username := claims.Username
+	//id := claims.Id
+	//tokenStr, err = generate_token(username, id)
+	//if err != nil {
+	//	log.Error(err.Error())
+	//}
 	//	设置用户新的token
 	http.SetCookie(w, &http.Cookie{
+		//cookie特性，只有Name，Domain和path完全一样，才会覆盖原来的cookie，
+		//否则会插入一个新的cookie，会导致存在多个同名cookie，导致异常
 		Name:     "token",
 		Value:    tokenStr,
+		Domain:   "localhost",
+		Path:     "/api",
 		Expires:  expirationTime,
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
