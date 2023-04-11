@@ -56,6 +56,6 @@ func Close(conn *pgxpool.Conn) {
 	conn.Release()
 }
 
-//func InitRedisPool() {
-//
-//}
+func InitRedisPool() {
+
+}
