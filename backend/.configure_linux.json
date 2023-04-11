@@ -5,5 +5,10 @@
     "user": "postgres",
     "pw": "huangzhen123",
     "db_name":"newdb"
+  },
+  "db_redis": {
+    "address": "175.178.106.176",
+    "port" : "6379",
+    "pw":
   }
 }

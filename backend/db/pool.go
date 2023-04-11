@@ -32,7 +32,6 @@ func CreateDBPool() {
 	dbUser := viper.GetString("db_postgres.user")
 	dbPw := viper.GetString("db_postgres.pw")
 	dbName := viper.GetString("db_postgres.db_name")
-	fmt.Println(dbPort, "@@@@@@@@@@@@@@@@@@")
 	config, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable&pool_max_conns=50", dbUser, dbPw, dbAddr, dbPort, dbName))
 	//config, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://postgres:huangzhen123@localhost:5432/newdb?sslmode=disable&pool_max_conns=50"))
 
@@ -55,4 +54,8 @@ func GetDBConn() (*pgxpool.Conn, error) {
 
 func Close(conn *pgxpool.Conn) {
 	conn.Release()
+}
+
+func InitRedisPool() {
+
 }
