@@ -1,3 +1,2 @@
-2023-04-11T17:28:36.372+0800	INFO	backend/main.go:19	hello main
-2023-04-11T17:28:36.396+0800	INFO	db/pool.go:48	DB pool create success
-2023-04-11T17:28:40.845+0800	INFO	service/web-serve.go:25	service get a request
+2023-04-11T21:34:27.181+0800	INFO	backend/main.go:19	hello main
+2023-04-11T21:34:27.202+0800	INFO	db/pool.go:48	DB pool create success
