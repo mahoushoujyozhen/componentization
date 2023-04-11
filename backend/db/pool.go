@@ -4,11 +4,15 @@ import (
 	"backend/zap_log"
 	"context"
 	"fmt"
+	"github.com/gomodule/redigo/redis"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
 )
 
-var Pool *pgxpool.Pool
+var (
+	Pool      *pgxpool.Pool
+	redisPool *redis.Pool
+)
 
 func CreateDBPool() {
 	var log = zap_log.Log
@@ -56,6 +60,34 @@ func Close(conn *pgxpool.Conn) {
 	conn.Release()
 }
 
-func InitRedisPool() {
+func redisConnInit() {
+	log := zap_log.Log
+	if redisPool == nil {
+		return
+	}
+	host := "localhost"
+	port := 6379
+	pw := "123456"
+	var s string
+	s = "db_redis.address"
+	if viper.IsSet(s) {
+		host = viper.GetString(s)
+	}
+
+	s = "db_redis.port"
+	if viper.IsSet(s) {
+		port = viper.GetInt(s)
+	}
+	s = "db_redis.pw"
+	if viper.IsSet(s) {
+		pw = viper.GetString(s)
+	}
+	//Test
+	fmt.Println(host)
+	fmt.Println(port)
+	fmt.Println(pw)
+
+	serv := fmt.Sprintf("%s:%d", host, port)
+	log.Info(fmt.Sprintf("connecting redis to %s", serv))
 
 }
