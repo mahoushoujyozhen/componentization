@@ -7,6 +7,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
+	"time"
 )
 
 var (
@@ -90,4 +91,58 @@ func redisConnInit() {
 	serv := fmt.Sprintf("%s:%d", host, port)
 	log.Info(fmt.Sprintf("connecting redis to %s", serv))
 
+	redisPool = &redis.Pool{
+		MaxIdle:     32,
+		IdleTimeout: 60 * time.Minute,
+		Dial: func() (conn redis.Conn, err error) {
+			for {
+				conn, err = redis.Dial("tcp", serv)
+				if err != nil {
+					log.Error(err.Error())
+					<-time.After(time.Second * 15)
+					continue
+				}
+				_, err = conn.Do("AUTH", pw)
+				if err != nil {
+					log.Error(err.Error())
+					<-time.After(time.Second * 15)
+					continue
+				}
+				log.Info(fmt.Sprintf("redis connected with :%s", serv))
+
+				if viper.IsSet("db_redis.init") {
+					cleanCache := viper.GetBool("db_redis.init")
+					if cleanCache {
+						_, err = conn.Do("flushdb")
+						if err != nil {
+							log.Error(err.Error())
+							return
+						}
+						log.Info("successfully clean up redis db")
+						defer diableNextFlushDB()
+					}
+				}
+				break
+			}
+			return
+		},
+		TestOnBorrow: func(c redis.Conn, t time.Time) error {
+			_, err := c.Do("PING")
+			return err
+		},
+	}
+	conn := redisPool.Get()
+	_, err := conn.Do("INFO")
+	if err != nil {
+		log.Error(err.Error())
+	}
+	log.Info(fmt.Sprintf("connect with redis :%s\n", serv))
+}
+
+func diableNextFlushDB() {
+	err := JsonWrite(viper.ConfigFileUsed(), "dbms.redis.init", false)
+	if err != nil {
+		D.Error(err.Error())
+		return
+	}
 }
