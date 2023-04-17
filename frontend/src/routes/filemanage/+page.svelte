@@ -58,8 +58,8 @@
         formData.append("type","post")
         formData.append("file",file[0])
         console.log(file)
-        let url ="http://175.178.106.176:7070/api/filemanage";
-        // let url ="http://localhost:7070/api/filemanage";
+        // let url ="http://175.178.106.176:7070/api/filemanage";
+        let url ="http://localhost:7070/api/filemanage";
         fetch(url,{
             method:"POST",
             mode:"cors",
@@ -96,8 +96,8 @@
         }
         formData.append("userId",id)
         formData.append("type","delete")
-        let url ="http://175.178.106.176:7070/api/filemanage";
-        // let url ="http://localhost:7070/api/filemanage";
+        // let url ="http://175.178.106.176:7070/api/filemanage";
+        let url ="http://localhost:7070/api/filemanage";
         fetch(url,{
             method:"POST",
             mode:"cors",

@@ -23,7 +23,8 @@ let log:any
 let username:string
 let selectionIndex: number | undefined = undefined;
 let selection = 'Stephen Hawking';
-let locationHost = "175.178.106.176:7070/api/chat"
+// let locationHost = "175.178.106.176:7070/api/chat"
+let locationHost = "localhost:7070/api/chat"
 
 onMount(()=>{
     fetch("http://localhost:7070/api/login/welcome",{
@@ -52,7 +53,8 @@ onMount(()=>{
     let id = window.localStorage.getItem("id")
     let formData = new FormData()
     formData.append("userid",id)
-    let url ="http://175.178.106.176:7070/api/userlist";
+    // let url ="http://175.178.106.176:7070/api/userlist";
+    let url ="http://localhost:7070/api/userlist"
         fetch(url,{
             method:"POST",
             mode:"cors",

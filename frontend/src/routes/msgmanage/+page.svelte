@@ -31,6 +31,11 @@
         })
 } 
         onMount(()=>{
+
+            $user.id = window.localStorage.getItem("id")
+            $user.username = window.localStorage.getItem("username")
+            console.log($user.id)
+            console.log($user.username)
             fetch("http://localhost:7070/api/login/welcome",{
             method:"POST",
             cache:"no-cache",
@@ -43,14 +48,15 @@
             if (v.status != 0 ){
                 console.log(v.msg)
                 alert("用户尚未登录，请先登录(调用了refresh函数)")
-                refreshToken()
-                return
+                // refreshToken()
+                // return
             }
             alert("token check success")
         })
         })
     function update(){
-        let url ="http://175.178.106.176:7070/api/msgmanage";
+        // let url ="http://175.178.106.176:7070/api/msgmanage";
+        let url ="http://localhost:7070/api/msgmanage"
         fetch(url,{
             method:"POST",
             mode:"cors",

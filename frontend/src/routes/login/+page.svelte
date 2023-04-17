@@ -63,7 +63,6 @@
                 return
             }
             alert("token check success")
-            setInterval(refreshToken,1000*10)
         })
     })
 

@@ -39,7 +39,7 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_10548: string;
+	export const EFC_8864: string;
 	export const FTP_PASSIVE: string;
 	export const GIT_ASKPASS: string;
 	export const GoLand: string;
@@ -165,7 +165,7 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_10548: string;
+		EFC_8864: string;
 		FTP_PASSIVE: string;
 		GIT_ASKPASS: string;
 		GoLand: string;
