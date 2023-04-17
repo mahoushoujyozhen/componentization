@@ -1,7 +1,6 @@
 package cmn
 
 import (
-	"backend/zap_log"
 	"fmt"
 	"github.com/tidwall/pretty"
 	"github.com/tidwall/sjson"
@@ -10,7 +9,10 @@ import (
 
 // JsonWrite set json key/value to file by path
 // if fn doesn't exist then create it
-var log = zap_log.Log
+
+func init() {
+	z = GetLogger()
+}
 
 func JsonWrite(fn string, path string, value interface{}) (err error) {
 	switch {
@@ -23,7 +25,7 @@ func JsonWrite(fn string, path string, value interface{}) (err error) {
 	}
 
 	if err != nil {
-		log.Error(err.Error())
+		z.Error(err.Error())
 		return
 	}
 
@@ -33,7 +35,7 @@ func JsonWrite(fn string, path string, value interface{}) (err error) {
 	}
 
 	if err != nil {
-		log.Error(err.Error())
+		z.Error(err.Error())
 		return
 	}
 	if len(buf) == 0 {
@@ -42,13 +44,13 @@ func JsonWrite(fn string, path string, value interface{}) (err error) {
 
 	rsl, err := sjson.Set(string(buf), path, value)
 	if err != nil {
-		log.Error(err.Error())
+		z.Error(err.Error())
 		return
 	}
 
 	err = os.WriteFile(fn, pretty.Pretty([]byte(rsl)), 0644)
 	if err != nil {
-		log.Error(err.Error())
+		z.Error(err.Error())
 	}
 	return
 }

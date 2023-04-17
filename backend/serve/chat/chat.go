@@ -7,6 +7,7 @@ import (
 	"backend/cmn"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -46,11 +47,13 @@ func Enroll(author string) {
 var (
 	hub      *Hub
 	chatRoom map[string]chatUser
+	z        *zap.Logger
 )
 
 func init() {
 	//create a public chat room
 	//create a msg hub
+	z = cmn.GetLogger()
 	hub = newHub()
 	go hub.run2()
 	//init chatRoom to store chatter id

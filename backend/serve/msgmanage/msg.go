@@ -6,10 +6,10 @@ package msgmanage
 import (
 	"backend/cmn"
 	"backend/db"
-	"backend/zap_log"
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -39,9 +39,15 @@ func Enroll(author string) {
 	fmt.Println(developer)
 }
 
+var (
+	z *zap.Logger
+)
+
+func init() {
+	z = cmn.GetLogger()
+}
 func msgmamage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("msgmanage service")
-	log := zap_log.Log
 	dbConn, _ := db.GetDBConn()
 	defer db.Close(dbConn)
 	//这里写业务函数
@@ -52,7 +58,7 @@ func msgmamage(w http.ResponseWriter, r *http.Request) {
 	var user = cmn.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -63,7 +69,7 @@ func msgmamage(w http.ResponseWriter, r *http.Request) {
 		WHERE id = $5;`
 	_, err = dbConn.Exec(context.Background(), s, user.Username, user.Gender, user.Age, user.Phone, user.Id)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)

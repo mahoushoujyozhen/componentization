@@ -6,10 +6,10 @@ package userlist
 import (
 	"backend/cmn"
 	"backend/db"
-	"backend/zap_log"
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -48,11 +48,18 @@ type response struct {
 	Data   []userReq `json:"data"`
 }
 
+var (
+	z *zap.Logger
+)
+
+func init() {
+	z = cmn.GetLogger()
+}
+
 // authMgmt authenticate/authorization management
 func userlist(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("userlist service")
 	userid := r.FormValue("userid")
-	log := zap_log.Log
 	dbConn, _ := db.GetDBConn()
 	defer db.Close(dbConn)
 	//这里写业务函数
@@ -69,7 +76,7 @@ func userlist(w http.ResponseWriter, r *http.Request) {
 	s := `SELECT id,username FROM usercst WHERE id <> $1;`
 	rs, err := dbConn.Query(context.Background(), s, userid)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -90,7 +97,7 @@ func userlist(w http.ResponseWriter, r *http.Request) {
 	}
 	buf, err := json.Marshal(response)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)

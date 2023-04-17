@@ -6,13 +6,13 @@ package login
 import (
 	"backend/cmn"
 	"backend/db"
-	"backend/zap_log"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
+	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -68,10 +68,11 @@ func Enroll(author string) {
 var (
 	expirationTime time.Time
 	PrivateKey     []byte
+	z              *zap.Logger
 )
 
 func init() {
-
+	z = cmn.GetLogger()
 	expirationTime = time.Now().Add(time.Minute * 10)
 	PrivateKey = []byte("mahoushoujyoKey")
 }
@@ -81,10 +82,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	dbConn, err := db.GetDBConn()
 	if err != nil {
-		log.Error(fmt.Sprintf("err:%v", err))
+		z.Error(fmt.Sprintf("err:%v", err))
 		fmt.Println(err)
 		req.Status = 566
 		req.Msg = "db Pool has no conn"
@@ -98,7 +98,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&user)
 	fmt.Println(err)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -123,7 +123,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			s := `INSERT INTO usercst (username,password) VALUES ($1,$2); `
 			_, err := dbConn.Exec(context.Background(), s, username, pw)
 			if err != nil {
-				log.Error(fmt.Sprintf("err: %s", err))
+				z.Error(fmt.Sprintf("err: %s", err))
 				req.Status = 550
 				req.Msg = err.Error()
 				cmn.Resp(w, &req)
@@ -133,7 +133,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			rs := dbConn.QueryRow(context.Background(), s, username, pw)
 			err = rs.Scan(&id)
 			if err != nil {
-				log.Error(fmt.Sprintf("err: %s", err))
+				z.Error(fmt.Sprintf("err: %s", err))
 				req.Status = 560
 				req.Msg = fmt.Sprintf("err: %s", err)
 				cmn.Resp(w, &req)
@@ -151,7 +151,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			cmn.Resp(w, &req)
 			return
 		}
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 560
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -181,10 +181,9 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	dbConn, err := db.GetDBConn()
 	if err != nil {
-		log.Error(fmt.Sprintf("err:%v", err))
+		z.Error(fmt.Sprintf("err:%v", err))
 		fmt.Println(err)
 		req.Status = 566
 		req.Msg = "db Pool has no conn"
@@ -198,7 +197,7 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&user)
 	fmt.Println(err)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -222,7 +221,7 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 			s := `INSERT INTO usercst (username,password) VALUES ($1,$2); `
 			_, err := dbConn.Exec(context.Background(), s, username, pw)
 			if err != nil {
-				log.Error(fmt.Sprintf("err: %s", err))
+				z.Error(fmt.Sprintf("err: %s", err))
 				req.Status = 550
 				req.Msg = err.Error()
 				cmn.Resp(w, &req)
@@ -232,7 +231,7 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 			rs := dbConn.QueryRow(context.Background(), s, username, pw)
 			err = rs.Scan(&id)
 			if err != nil {
-				log.Error(fmt.Sprintf("err: %s", err))
+				z.Error(fmt.Sprintf("err: %s", err))
 				req.Status = 560
 				req.Msg = fmt.Sprintf("err: %s", err)
 				cmn.Resp(w, &req)
@@ -250,7 +249,7 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 			//颁发token
 			tokenStr, err := generate_token(username, id)
 			if err != nil {
-				log.Error(err.Error())
+				z.Error(err.Error())
 			}
 
 			//设置token
@@ -267,7 +266,7 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 			cmn.Resp(w, &req)
 			return
 		}
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 560
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -288,7 +287,7 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 	//颁发token
 	tokenStr, err := generate_token(username, id)
 	if err != nil {
-		log.Error(err.Error())
+		z.Error(err.Error())
 	}
 
 	//设置token
@@ -310,7 +309,6 @@ func login_jwt(w http.ResponseWriter, r *http.Request) {
 
 // 利用username 和 id 进行签名，颁发令牌
 func generate_token(username string, id int) (string, error) {
-	log := zap_log.Log
 	//	创建用户声明，用于签名
 	claims := &Claims{
 		Username: username,
@@ -325,7 +323,7 @@ func generate_token(username string, id int) (string, error) {
 
 	tokenStr, err := token.SignedString(PrivateKey)
 	if err != nil {
-		log.Error("生成tokenStr失败")
+		z.Error("生成tokenStr失败")
 		return "", err
 	}
 	return tokenStr, nil
@@ -337,21 +335,20 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	c, err := r.Cookie("token")
 	if err != nil {
 		if err == http.ErrNoCookie {
 			//如果未设置Cookies，则说明用户没有进行认证
 			req.Status = 401
 			req.Msg = "No Cookie"
-			log.Error(req.Msg)
+			z.Error(req.Msg)
 			cmn.Resp(w, &req)
 			return
 		}
 		//对于其他类型的错误，返回错误请求状态
 		req.Status = 400
 		req.Msg = "cookie err"
-		log.Error(req.Msg)
+		z.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
@@ -371,7 +368,7 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 		if err == jwt.ErrSignatureInvalid {
 			req.Status = 401
 			req.Msg = "No Cookie"
-			log.Error(req.Msg)
+			z.Error(req.Msg)
 			cmn.Resp(w, &req)
 			return
 		}
@@ -384,7 +381,7 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 	if !tkn.Valid {
 		req.Status = 401
 		req.Msg = "No Cookie"
-		log.Error(req.Msg)
+		z.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
@@ -401,7 +398,6 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	//	此处代码与Welcome第一部分一致
 	c, err := r.Cookie("token")
 	if err != nil {
@@ -409,14 +405,14 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 			//如果未设置Cookies，则说明用户没有进行认证
 			req.Status = 401
 			req.Msg = "No Cookie"
-			log.Error(req.Msg)
+			z.Error(req.Msg)
 			cmn.Resp(w, &req)
 			return
 		}
 		//对于其他类型的错误，返回错误请求状态
 		req.Status = 400
 		req.Msg = "cookie err"
-		log.Error(req.Msg)
+		z.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
@@ -435,13 +431,13 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		if err == jwt.ErrSignatureInvalid {
 			req.Status = 401
 			req.Msg = "invalid signature"
-			log.Error(req.Msg)
+			z.Error(req.Msg)
 			cmn.Resp(w, &req)
 			return
 		}
 		req.Status = 400
 		req.Msg = "cookie err"
-		log.Error(req.Msg)
+		z.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
@@ -449,7 +445,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	if !tkn.Valid {
 		req.Status = 401
 		req.Msg = "token is invalid"
-		log.Error(req.Msg)
+		z.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
@@ -469,7 +465,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		req.Status = 500
 		req.Msg = "Server err"
-		log.Error(req.Msg)
+		z.Error(req.Msg)
 		cmn.Resp(w, &req)
 		return
 	}
@@ -477,7 +473,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	//id := claims.Id
 	//tokenStr, err = generate_token(username, id)
 	//if err != nil {
-	//	log.Error(err.Error())
+	//	z.Error(err.Error())
 	//}
 	//	设置用户新的token
 	http.SetCookie(w, &http.Cookie{

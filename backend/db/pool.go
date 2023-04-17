@@ -1,33 +1,38 @@
 package db
 
 import (
-	"backend/zap_log"
+	"backend/cmn"
 	"context"
 	"fmt"
 	"github.com/gomodule/redigo/redis"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"time"
 )
 
 var (
 	Pool      *pgxpool.Pool
 	redisPool *redis.Pool
+	poolStats redis.PoolStats
+	z         *zap.Logger
 )
 
+func init() {
+	z = cmn.GetLogger()
+}
 func CreateDBPool() {
-	var log = zap_log.Log
 	viper.SetConfigName(".configure_linux") // name of config file (without extension)
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; ignore error if desired
-			log.Error(".configure_linux was not found")
+			z.Error(".configure_linux was not found")
 			return
 		} else {
 			// Config file was found but another error was produced
-			log.Error(fmt.Sprintf("fatal error config file: %w", err))
+			z.Error(fmt.Sprintf("fatal error config file: %w", err))
 			return
 		}
 	}
@@ -41,16 +46,16 @@ func CreateDBPool() {
 	//config, err := pgxpool.ParseConfig(fmt.Sprintf("postgres://postgres:huangzhen123@localhost:5432/newdb?sslmode=disable&pool_max_conns=50"))
 
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		return
 	}
 	Pool, err = pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
-		log.Error("DB pool create failed !")
-		fmt.Println("DB pool init failed &&&&&")
+		z.Error("DB pool create failed !")
+		fmt.Println("DB pool init failed")
 		return
 	}
-	log.Info("DB pool create success")
+	z.Info("DB pool create success")
 }
 
 func GetDBConn() (*pgxpool.Conn, error) {
@@ -61,11 +66,23 @@ func Close(conn *pgxpool.Conn) {
 	conn.Release()
 }
 
-func redisConnInit() {
-	log := zap_log.Log
+// GetRedisConn return a redis.Conn
+func GetRedisConn() redis.Conn {
+	if redisPool == nil {
+		RedisConnInit()
+	}
+	poolStats = redisPool.Stats()
+	z.Info(fmt.Sprintf("redisPool activeCount:%d,idelAcount:%d",
+		poolStats.ActiveCount, poolStats.IdleCount))
+	return redisPool.Get()
+}
+
+// RedisConnInit init a redis conn pool
+func RedisConnInit() {
 	if redisPool == nil {
 		return
 	}
+
 	host := "localhost"
 	port := 6379
 	pw := "123456"
@@ -89,7 +106,7 @@ func redisConnInit() {
 	fmt.Println(pw)
 
 	serv := fmt.Sprintf("%s:%d", host, port)
-	log.Info(fmt.Sprintf("connecting redis to %s", serv))
+	z.Info(fmt.Sprintf("connecting redis to %s", serv))
 
 	redisPool = &redis.Pool{
 		MaxIdle:     32,
@@ -98,27 +115,27 @@ func redisConnInit() {
 			for {
 				conn, err = redis.Dial("tcp", serv)
 				if err != nil {
-					log.Error(err.Error())
+					z.Error(err.Error())
 					<-time.After(time.Second * 15)
 					continue
 				}
 				_, err = conn.Do("AUTH", pw)
 				if err != nil {
-					log.Error(err.Error())
+					z.Error(err.Error())
 					<-time.After(time.Second * 15)
 					continue
 				}
-				log.Info(fmt.Sprintf("redis connected with :%s", serv))
+				z.Info(fmt.Sprintf("redis connected with :%s", serv))
 
 				if viper.IsSet("db_redis.init") {
 					cleanCache := viper.GetBool("db_redis.init")
 					if cleanCache {
 						_, err = conn.Do("flushdb")
 						if err != nil {
-							log.Error(err.Error())
+							z.Error(err.Error())
 							return
 						}
-						log.Info("successfully clean up redis db")
+						z.Info("successfully clean up redis db")
 						defer diableNextFlushDB()
 					}
 				}
@@ -134,15 +151,16 @@ func redisConnInit() {
 	conn := redisPool.Get()
 	_, err := conn.Do("INFO")
 	if err != nil {
-		log.Error(err.Error())
+		z.Error(err.Error())
 	}
-	log.Info(fmt.Sprintf("connect with redis :%s\n", serv))
+	z.Info("success redis")
+	z.Info(fmt.Sprintf("connect with redis :%s\n", serv))
 }
 
 func diableNextFlushDB() {
-	err := JsonWrite(viper.ConfigFileUsed(), "dbms.redis.init", false)
+	err := cmn.JsonWrite(viper.ConfigFileUsed(), "dbms.redis.init", false)
 	if err != nil {
-		D.Error(err.Error())
+		z.Error(err.Error())
 		return
 	}
 }

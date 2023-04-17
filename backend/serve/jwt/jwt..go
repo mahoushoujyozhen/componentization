@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -63,6 +64,14 @@ const (
 	TokenName = "mahoushoujyo"
 	TokenPw   = "123456"
 )
+
+var (
+	z *zap.Logger
+)
+
+func init() {
+	z = cmn.GetLogger()
+}
 
 // authMgmt authenticate/authorization management
 func jwtClams(w http.ResponseWriter, r *http.Request) {

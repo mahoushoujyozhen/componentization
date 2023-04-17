@@ -6,12 +6,12 @@ package filemanage
 import (
 	"backend/cmn"
 	"backend/db"
-	"backend/zap_log"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"os"
@@ -43,6 +43,13 @@ func Enroll(author string) {
 	fmt.Println(developer)
 }
 
+var (
+	z *zap.Logger
+)
+
+func init() {
+	z = cmn.GetLogger()
+}
 func filemanage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("filemanage service")
 
@@ -65,7 +72,7 @@ func filemanage(w http.ResponseWriter, r *http.Request) {
 }
 
 func Filepost(w http.ResponseWriter, r *http.Request) {
-	log := zap_log.Log
+
 	dbConn, _ := db.GetDBConn()
 	defer db.Close(dbConn)
 	//这里写业务函数
@@ -76,7 +83,7 @@ func Filepost(w http.ResponseWriter, r *http.Request) {
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -90,7 +97,7 @@ func Filepost(w http.ResponseWriter, r *http.Request) {
 	//save file to ProjectRootPath \ static
 	rootPath, err := os.Getwd()
 	if err != nil {
-		log.Error(fmt.Sprintf("rootPath get err:%s", err))
+		z.Error(fmt.Sprintf("rootPath get err:%s", err))
 		return
 	}
 	//FName 是要存储的文件名
@@ -105,7 +112,7 @@ func Filepost(w http.ResponseWriter, r *http.Request) {
 	st, err := os.Create(fileSavePath)
 	defer st.Close()
 	if err != nil {
-		log.Error(fmt.Sprintf("Create file err :%v", err))
+		z.Error(fmt.Sprintf("Create file err :%v", err))
 		req.Status = 590
 		req.Msg = err.Error()
 		cmn.Resp(w, &req)
@@ -114,7 +121,7 @@ func Filepost(w http.ResponseWriter, r *http.Request) {
 
 	_, err = io.Copy(st, file)
 	if err != nil {
-		log.Error(fmt.Sprintf("Copy file err :%v", err))
+		z.Error(fmt.Sprintf("Copy file err :%v", err))
 		req.Status = 590
 		req.Msg = err.Error()
 		cmn.Resp(w, &req)
@@ -127,7 +134,7 @@ func Filepost(w http.ResponseWriter, r *http.Request) {
 	_, err = dbConn.Exec(context.Background(), s, userid, fileSavePath)
 
 	if err != nil {
-		log.Error(fmt.Sprintf("Copy file err :%v", err))
+		z.Error(fmt.Sprintf("Copy file err :%v", err))
 		req.Status = 590
 		req.Msg = "该文件已上传，请勿重复上传该文件"
 		cmn.Resp(w, &req)
@@ -144,7 +151,6 @@ func Filepost(w http.ResponseWriter, r *http.Request) {
 }
 func Filedelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("file delete")
-	log := zap_log.Log
 	dbConn, _ := db.GetDBConn()
 	defer db.Close(dbConn)
 	//这里写业务函数
@@ -161,13 +167,13 @@ func Filedelete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		//no file has uploaded
 		if errors.Is(err, pgx.ErrNoRows) {
-			log.Error(fmt.Sprintf("Copy file err :%v", err))
+			z.Error(fmt.Sprintf("Copy file err :%v", err))
 			req.Msg = "未上传文件，请上传文件后重试"
 			cmn.Resp(w, &req)
 			return
 		}
 		//filepath scan err
-		log.Error(fmt.Sprintf("Copy file err :%v", err))
+		z.Error(fmt.Sprintf("Copy file err :%v", err))
 		req.Status = 590
 		req.Msg = fmt.Sprintf("数据库查询失败:%v", err)
 		cmn.Resp(w, &req)
@@ -177,7 +183,7 @@ func Filedelete(w http.ResponseWriter, r *http.Request) {
 	//	delete file in local
 	err = os.Remove(filepath)
 	if err != nil {
-		log.Error(fmt.Sprintf("Copy file err :%v", err))
+		z.Error(fmt.Sprintf("Copy file err :%v", err))
 		req.Status = 590
 		req.Msg = fmt.Sprintf("delete file err:%v", err)
 		cmn.Resp(w, &req)
@@ -187,7 +193,7 @@ func Filedelete(w http.ResponseWriter, r *http.Request) {
 	s = `DELETE FROM file WHERE userid =$1 and filepath =$2;`
 	_, err = dbConn.Exec(context.Background(), s, id, filepath)
 	if err != nil {
-		log.Error(fmt.Sprintf("Copy file err :%v", err))
+		z.Error(fmt.Sprintf("Copy file err :%v", err))
 		req.Status = 590
 		req.Msg = fmt.Sprintf("DB delete file err:%v", err)
 		cmn.Resp(w, &req)

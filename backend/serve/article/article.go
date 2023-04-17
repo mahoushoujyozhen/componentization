@@ -6,7 +6,6 @@ package article
 import (
 	"backend/cmn"
 	"backend/db"
-	"backend/zap_log"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -73,16 +72,20 @@ func Enroll(author string) {
 	fmt.Println(developer)
 }
 
+var z *zap.Logger
+
+func init() {
+	z = cmn.GetLogger()
+}
 func publishArticle(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("article service")
 	var req = cmn.ReplyProto{
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	dbConn, err := db.GetDBConn()
 	if err != nil {
-		log.Error(fmt.Sprintf("err:%v", err))
+		z.Error(fmt.Sprintf("err:%v", err))
 		fmt.Println(err)
 		req.Status = 566
 		req.Msg = "db Pool has no conn"
@@ -94,7 +97,7 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 	var article = articleStruct{}
 	err = json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -115,7 +118,7 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 		s := `INSERT INTO article (content,user_id,publish,create_time,title,type,abstract) VALUES ($1,$2,$3,$4,$5,$6,$7);`
 		_, err := dbConn.Exec(context.Background(), s, article.Content, article.UserId, 1, timeUnix, article.Title, article.Type, article.Abstract)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 778
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, &req)
@@ -128,7 +131,7 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 		rs := dbConn.QueryRow(context.Background(), s, article.UserId)
 		err = rs.Scan(&articleId)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 779
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, &req)
@@ -145,7 +148,7 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 		}
 		buf, err := json.Marshal(resp)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 777
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, &req)
@@ -160,7 +163,7 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 		SET content = $1 , publish = $2 ,update_time = $3 ,title = $4 , type = $5 ,abstract = $6 WHERE article_id = $7;`
 	_, err = dbConn.Exec(context.Background(), s, article.Content, 1, timeUnix, article.Title, article.Type, article.Abstract, article.ArticleId)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 778
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -173,7 +176,7 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 	}
 	buf, err := json.Marshal(resp)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -185,13 +188,13 @@ func publishArticle(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func articlePublish(w http.ResponseWriter, log *zap.Logger, req *cmn.ReplyProto, dbConn *pgxpool.Conn, article *articleStruct) {
+func articlePublish(w http.ResponseWriter, z *zap.Logger, req *cmn.ReplyProto, dbConn *pgxpool.Conn, article *articleStruct) {
 	if article.ArticleId == 0 {
 		//首次发布
 		s := `INSERT INTO article (content,user_id,publish) VALUES ($1,$2,$3);`
 		_, err := dbConn.Exec(context.Background(), s, article.Content, article.UserId, 1)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 778
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, req)
@@ -204,7 +207,7 @@ func articlePublish(w http.ResponseWriter, log *zap.Logger, req *cmn.ReplyProto,
 		rs := dbConn.QueryRow(context.Background(), s, article.UserId)
 		err = rs.Scan(&articleId)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 779
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, req)
@@ -221,7 +224,7 @@ func articlePublish(w http.ResponseWriter, log *zap.Logger, req *cmn.ReplyProto,
 		}
 		buf, err := json.Marshal(resp)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 777
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, req)
@@ -236,7 +239,7 @@ func articlePublish(w http.ResponseWriter, log *zap.Logger, req *cmn.ReplyProto,
 		SET content = $1 , publish = $2  WHERE article_id = $3;`
 	_, err := dbConn.Exec(context.Background(), s, article.Content, 1, article.ArticleId)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 778
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, req)
@@ -249,7 +252,7 @@ func articlePublish(w http.ResponseWriter, log *zap.Logger, req *cmn.ReplyProto,
 	}
 	buf, err := json.Marshal(resp)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, req)
@@ -265,10 +268,10 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
+
 	dbConn, err := db.GetDBConn()
 	if err != nil {
-		log.Error(fmt.Sprintf("err:%v", err))
+		z.Error(fmt.Sprintf("err:%v", err))
 		fmt.Println(err)
 		req.Status = 566
 		req.Msg = "db Pool has no conn"
@@ -280,7 +283,7 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 	var article = articleStruct{}
 	err = json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -299,7 +302,7 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 		s := `INSERT INTO article (content,user_id,publish,create_time,title,type,abstract) VALUES ($1,$2,$3,$4,$5,$6,$7);`
 		_, err := dbConn.Exec(context.Background(), s, article.Content, article.UserId, 0, timeUnix, article.Title, article.Type, article.Abstract)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 778
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, &req)
@@ -312,7 +315,7 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 		rs := dbConn.QueryRow(context.Background(), s, article.UserId)
 		err = rs.Scan(&articleId)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 779
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, &req)
@@ -329,7 +332,7 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 		}
 		buf, err := json.Marshal(resp)
 		if err != nil {
-			log.Error(fmt.Sprintf("err: %s", err))
+			z.Error(fmt.Sprintf("err: %s", err))
 			req.Status = 777
 			req.Msg = fmt.Sprintf("err: %s", err)
 			cmn.Resp(w, &req)
@@ -344,7 +347,7 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 		SET content = $1  ,update_time = $2 ,title = $3 , type = $4 ,abstract = $5 WHERE article_id = $6;`
 	_, err = dbConn.Exec(context.Background(), s, article.Content, timeUnix, article.Title, article.Type, article.Abstract, article.ArticleId)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 778
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -357,7 +360,7 @@ func saveArticle(w http.ResponseWriter, r *http.Request) {
 	}
 	buf, err := json.Marshal(resp)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -375,10 +378,9 @@ func getArticleContent(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	dbConn, err := db.GetDBConn()
 	if err != nil {
-		log.Error(fmt.Sprintf("err:%v", err))
+		z.Error(fmt.Sprintf("err:%v", err))
 		fmt.Println(err)
 		req.Status = 566
 		req.Msg = "db Pool has no conn"
@@ -390,7 +392,7 @@ func getArticleContent(w http.ResponseWriter, r *http.Request) {
 	var article = articleStruct{}
 	err = json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -408,7 +410,7 @@ func getArticleContent(w http.ResponseWriter, r *http.Request) {
 	var resArticle = articleStruct{}
 	err = rs.Scan(&resArticle.Content, &resArticle.Title, &resArticle.Type, &resArticle.Abstract)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 778
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -422,7 +424,7 @@ func getArticleContent(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(resArticle.Content, "$$$$$$$$")
 	buf, err := json.Marshal(resp)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -440,10 +442,9 @@ func listArticle(w http.ResponseWriter, r *http.Request) {
 		Status: 0,
 		Msg:    "success",
 	}
-	log := zap_log.Log
 	dbConn, err := db.GetDBConn()
 	if err != nil {
-		log.Error(fmt.Sprintf("err:%v", err))
+		z.Error(fmt.Sprintf("err:%v", err))
 		fmt.Println(err)
 		req.Status = 566
 		req.Msg = "db Pool has no conn"
@@ -455,7 +456,7 @@ func listArticle(w http.ResponseWriter, r *http.Request) {
 	var article = articleStruct{}
 	err = json.NewDecoder(r.Body).Decode(&article)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -473,7 +474,7 @@ func listArticle(w http.ResponseWriter, r *http.Request) {
 	var resArticle = articleStruct{}
 	err = rs.Scan(&resArticle.Content)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 778
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)
@@ -487,7 +488,7 @@ func listArticle(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(resArticle.Content, "$$$$$$$$")
 	buf, err := json.Marshal(resp)
 	if err != nil {
-		log.Error(fmt.Sprintf("err: %s", err))
+		z.Error(fmt.Sprintf("err: %s", err))
 		req.Status = 777
 		req.Msg = fmt.Sprintf("err: %s", err)
 		cmn.Resp(w, &req)

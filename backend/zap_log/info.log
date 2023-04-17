@@ -1,2 +1,58 @@
-2023-04-11T21:34:27.181+0800	INFO	backend/main.go:19	hello main
-2023-04-11T21:34:27.202+0800	INFO	db/pool.go:48	DB pool create success
+2023-04-17T17:18:29.798+0800	INFO	backend/main.go:22	hello main
+2023-04-17T17:18:29.829+0800	INFO	db/pool.go:58	DB pool create success
+2023-04-17T17:18:34.612+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:34.647+0800	ERROR	login/login.go:200	err: EOF
+2023-04-17T17:18:48.464+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:48.466+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:48.467+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:49.538+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:49.539+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:49.540+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:18:54.441+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:09.814+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:21.819+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:21.821+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:21.821+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:22.902+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:22.904+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:22.906+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:27.940+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:27.941+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:27.942+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:46.949+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:47.051+0800	ERROR	article/article.go:100	err: EOF
+2023-04-17T17:19:56.945+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:19:57.049+0800	ERROR	article/article.go:286	err: EOF
+2023-04-17T17:20:07.919+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:07.920+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:07.921+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:08.991+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:08.992+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:08.993+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:12.243+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:20:12.351+0800	ERROR	article/article.go:395	err: EOF
+2023-04-17T17:23:12.083+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:12.085+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:12.086+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:13.156+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:13.157+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:13.158+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:18.189+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:18.190+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:18.191+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:23.609+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:37.983+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:37.985+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:37.987+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:39.054+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:39.056+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:39.057+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:44.090+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:44.092+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:23:44.093+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:24:14.124+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:24:14.127+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:24:14.132+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:24:20.664+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:24:20.666+0800	INFO	service/web-serve.go:31	service get a request
+2023-04-17T17:24:20.668+0800	INFO	service/web-serve.go:31	service get a request

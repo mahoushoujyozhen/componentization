@@ -1,26 +1,29 @@
 package main
 
 import (
+	"backend/cmn"
 	"backend/db"
 	"backend/service"
-	"backend/zap_log"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 )
 
 var ctx = map[string]interface{}{}
+var (
+	z *zap.Logger
+)
 
 func main() {
 	fmt.Println("main run !!!")
-	//register log
-	zap_log.Init()
-	log := zap_log.Log
+	//register z
+	z = cmn.GetLogger()
 	//	viper read .configure_linux.json
-	log.Info("hello main")
+	z.Info("hello main")
 	//ctx[dbPort] = viper.GetString("db_postgres.port")
 
 	db.CreateDBPool()
-
+	db.RedisConnInit()
 	//xxxxxx
 	//Enroll component
 	service.Enroll()
