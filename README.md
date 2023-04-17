@@ -73,3 +73,7 @@ All API implemented by Golang
 >Use Docker for containerized deployment, write a DockerFile for the project, configure the running environment of the project container, and start the project. Use Jenkins+Gitlab for continuous integration. Configure Jenkins and Gitlab with network hook functions to implement that Jenkins will automatically pull the project and rebuild when local push.
 
 
+
+## PS
+
+if backend API does not work, please check the request URL correctly 
