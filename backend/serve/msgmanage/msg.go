@@ -20,7 +20,7 @@ func Enroll(author string) {
 		var d cmn.ModuleAuthor
 		err := json.Unmarshal([]byte(author), &d)
 		if err != nil {
-			//z.Error(err.Error())
+			z.Error(err.Error())
 			fmt.Println(err.Error())
 			return
 		}
@@ -64,6 +64,7 @@ func msgmamage(w http.ResponseWriter, r *http.Request) {
 		cmn.Resp(w, &req)
 		return
 	}
+
 	s := `UPDATE usercst
 		SET username = $1,gender = $2, age = $3, phone = $4
 		WHERE id = $5;`
