@@ -14,6 +14,12 @@ func init() {
 	z = GetLogger()
 }
 
+//fn:  the path+fileName of JSON file
+//path :json key path
+//value: json value
+//example is following
+//err := JsonWrite("./xxx/config.json", "redis.init", true)
+
 func JsonWrite(fn string, path string, value interface{}) (err error) {
 	switch {
 	case fn == "":
