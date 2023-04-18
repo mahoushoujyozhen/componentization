@@ -23,7 +23,7 @@ func main() {
 	//ctx[dbPort] = viper.GetString("db_postgres.port")
 
 	db.CreateDBPool()
-	db.RedisConnInit()
+	db.GetRedisConn()
 	//xxxxxx
 	//Enroll component
 	service.Enroll()

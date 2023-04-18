@@ -20,8 +20,8 @@ var (
 
 func init() {
 	z = cmn.GetLogger()
-}
-func CreateDBPool() {
+	//init viper
+	//一般viper就作用于一个包，作为初始化系统资源，所以只需要初始化（注册一次），就可以后续使用，可以放在init里面
 	viper.SetConfigName(".configure_linux") // name of config file (without extension)
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
@@ -36,6 +36,8 @@ func CreateDBPool() {
 			return
 		}
 	}
+}
+func CreateDBPool() {
 	//get value from .configure_linux.json
 	dbPort := viper.GetString("db_postgres.port")
 	dbAddr := viper.GetString("db_postgres.address")
@@ -79,7 +81,7 @@ func GetRedisConn() redis.Conn {
 
 // RedisConnInit init a redis conn pool
 func RedisConnInit() {
-	if redisPool == nil {
+	if redisPool != nil {
 		return
 	}
 
@@ -100,10 +102,6 @@ func RedisConnInit() {
 	if viper.IsSet(s) {
 		pw = viper.GetString(s)
 	}
-	//Test
-	fmt.Println(host)
-	fmt.Println(port)
-	fmt.Println(pw)
 
 	serv := fmt.Sprintf("%s:%d", host, port)
 	z.Info(fmt.Sprintf("connecting redis to %s", serv))
@@ -112,6 +110,7 @@ func RedisConnInit() {
 		MaxIdle:     32,
 		IdleTimeout: 60 * time.Minute,
 		Dial: func() (conn redis.Conn, err error) {
+			//防止网络问题连接失败，每隔15s重试
 			for {
 				conn, err = redis.Dial("tcp", serv)
 				if err != nil {
@@ -119,6 +118,7 @@ func RedisConnInit() {
 					<-time.After(time.Second * 15)
 					continue
 				}
+				//redis auth
 				_, err = conn.Do("AUTH", pw)
 				if err != nil {
 					z.Error(err.Error())
@@ -127,6 +127,7 @@ func RedisConnInit() {
 				}
 				z.Info(fmt.Sprintf("redis connected with :%s", serv))
 
+				//redis init: flush redis db
 				if viper.IsSet("db_redis.init") {
 					cleanCache := viper.GetBool("db_redis.init")
 					if cleanCache {
@@ -143,6 +144,7 @@ func RedisConnInit() {
 			}
 			return
 		},
+		//if connect success ,reply "PONG"
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")
 			return err
@@ -153,12 +155,14 @@ func RedisConnInit() {
 	if err != nil {
 		z.Error(err.Error())
 	}
-	z.Info("success redis")
 	z.Info(fmt.Sprintf("connect with redis :%s\n", serv))
 }
 
+// In config.json ,if redis.init is true , we need to flush redis db,then set redis.init "false";
+
 func diableNextFlushDB() {
-	err := cmn.JsonWrite(viper.ConfigFileUsed(), "dbms.redis.init", false)
+	//viper.ConfigFileUsed() 获取之前注册的指定json文件的完整路径
+	err := cmn.JsonWrite(viper.ConfigFileUsed(), "db_redis.init", false)
 	if err != nil {
 		z.Error(err.Error())
 		return
