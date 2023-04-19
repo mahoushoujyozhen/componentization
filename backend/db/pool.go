@@ -137,7 +137,7 @@ func RedisConnInit() {
 							return
 						}
 						z.Info("successfully clean up redis db")
-						defer diableNextFlushDB()
+						defer disableNextFlushDB()
 					}
 				}
 				break
@@ -158,9 +158,22 @@ func RedisConnInit() {
 	z.Info(fmt.Sprintf("connect with redis :%s\n", serv))
 }
 
+// CleanRedis redis current db
+func CleanRedis() {
+	r := GetRedisConn()
+	defer r.Close()
+	_, err := r.Do("flushdb")
+	if err != nil {
+		z.Error(err.Error())
+		return
+	}
+	fmt.Println("cleanip redis db successfully")
+	defer disableNextFlushDB()
+}
+
 // In config.json ,if redis.init is true , we need to flush redis db,then set redis.init "false";
 
-func diableNextFlushDB() {
+func disableNextFlushDB() {
 	//viper.ConfigFileUsed() 获取之前注册的指定json文件的完整路径
 	err := cmn.JsonWrite(viper.ConfigFileUsed(), "db_redis.init", false)
 	if err != nil {
